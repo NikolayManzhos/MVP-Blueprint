@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Blueprint</string>
+    <string name="error_message">Network error, please try again later.</string>
+    <string name="error_button">TRY AGAIN</string>
+</resources>
