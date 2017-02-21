@@ -1,11 +1,13 @@
 package com.defaultapps.blueprint.ui.presenter;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
+import com.defaultapps.blueprint.data.entity.PhotoResponse;
 import com.defaultapps.blueprint.data.interactor.MainViewInteractor;
 import com.defaultapps.blueprint.ui.base.MvpPresenter;
 import com.defaultapps.blueprint.ui.fragment.MainViewImpl;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -41,20 +43,21 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
 
     @Override
     public void destroy() {
-        //TODO: Stop loading of any data at this point
+        //TODO: Stop loading of any data at this point ?
     }
 
     public void requestUpdate() {
         taskRunning = true;
         view.showLoading();
-        mainViewInteractor.loadData();
+        mainViewInteractor.loadDataFromNetwork();
     }
 
     @Override
-    public void onSuccess() {
+    public void onSuccess(List<PhotoResponse> data) {
         if (view!= null) {
             view.hideLoading();
             view.hideError();
+            view.updateView(data.get(0).getThumbnailUrl());
         }
         taskRunning = false;
     }
@@ -67,6 +70,5 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
         }
         taskRunning = false;
     }
-
 
 }
