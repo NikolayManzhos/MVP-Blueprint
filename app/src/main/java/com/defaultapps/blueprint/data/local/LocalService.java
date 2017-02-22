@@ -35,15 +35,11 @@ public class LocalService {
      * Do not execute on the UI thread!
      * @param responseList List of PhotoResponse entities.
      */
-    public void writeResponseToFile(List<PhotoResponse> responseList) {
-        try {
-            BufferedOutputStream bs = new BufferedOutputStream(new FileOutputStream(file));
-            bs.write(gson.toJson(responseList).getBytes());
-            bs.flush();
-            bs.close();
-        } catch (IOException e1){
-            e1.printStackTrace();
-        }
+    public void writeResponseToFile(List<PhotoResponse> responseList) throws IOException {
+        BufferedOutputStream bs = new BufferedOutputStream(new FileOutputStream(file));
+        bs.write(gson.toJson(responseList).getBytes());
+        bs.flush();
+        bs.close();
     }
 
     /**

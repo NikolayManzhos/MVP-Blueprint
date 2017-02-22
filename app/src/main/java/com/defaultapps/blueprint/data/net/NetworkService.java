@@ -13,10 +13,10 @@ public class NetworkService {
 
     @Inject
     public NetworkService() {
-        nonCachedRetrofit = getNonCahcedRetrofitCall();
+        nonCachedRetrofit = getNonCachedRetrofitCall();
     }
 
-    private Retrofit getNonCahcedRetrofitCall() {
+    private Retrofit getNonCachedRetrofitCall() {
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())

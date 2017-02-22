@@ -9,6 +9,7 @@ import com.defaultapps.blueprint.data.local.LocalService;
 import com.defaultapps.blueprint.data.net.NetworkService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,16 +19,19 @@ import retrofit2.Response;
 public class MainViewInteractor {
 
     private AsyncTask<Void, Void, Void> downloadFromNetTask;
-    private AsyncTask<Void, Void, Void> loadFromCahceTask;
+    private AsyncTask<Void, Void, Void> loadFromCacheTask;
     private NetworkService networkService;
     private LocalService localService;
     private MainViewInteractorCallback callback;
-    private List<PhotoResponse> data;
     private boolean responseStatus;
+
+    private List<PhotoResponse> data;
+    private List<String> photosUrl;
+    private List<String> photosTitle;
 
 
     public interface MainViewInteractorCallback {
-        void onSuccess(List<PhotoResponse> data);
+        void onSuccess(List<String> photosUrl, List<String> photosTitle);
         void onFailure();
     }
 
@@ -56,8 +60,10 @@ public class MainViewInteractor {
                         Response<List<PhotoResponse>> response = networkService.getNetworkCall().getData().execute();
                         data = response.body();
                         localService.writeResponseToFile(data);
+                        if (data != null) {
+                            parseData(data);
+                        }
                         responseStatus = true;
-//                    Thread.sleep(4000);
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         Log.d("AsyncTask", "FAILED TO LOAD OR WRITE DATA");
@@ -72,7 +78,9 @@ public class MainViewInteractor {
                     if (callback != null) {
                         if (responseStatus) {
                             Log.d("AsyncTask", "SUCCESS");
-                            callback.onSuccess(data);
+                            callback.onSuccess(photosUrl, photosTitle);
+                            photosUrl = null;
+                            photosTitle = null;
                         } else {
                             Log.d("AsyncTask", "FAILURE");
                             callback.onFailure();
@@ -86,7 +94,7 @@ public class MainViewInteractor {
     }
 
     public void loadDataFromCache() {
-        loadFromCahceTask = new AsyncTask<Void, Void, Void>() {
+        loadFromCacheTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -96,6 +104,7 @@ public class MainViewInteractor {
             protected Void doInBackground(Void... params) {
                 try {
                     data = localService.readResponseFromFile();
+                    parseData(data);
                     responseStatus = true;
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -111,7 +120,9 @@ public class MainViewInteractor {
                 if (callback != null) {
                     if (responseStatus) {
                         Log.d("AsyncTask", "SUCCESS");
-                        callback.onSuccess(data);
+                        callback.onSuccess(photosUrl, photosTitle);
+                        photosUrl = null;
+                        photosTitle = null;
                     } else {
                         Log.d("AsyncTask", "FAILURE");
                         callback.onFailure();
@@ -119,9 +130,17 @@ public class MainViewInteractor {
                 }
             }
         };
+        if (!loadFromCacheTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            loadFromCacheTask.execute();
+        }
     }
 
     private void parseData(List<PhotoResponse> dataToParse) {
-
+        photosUrl = new ArrayList<>();
+        photosTitle = new ArrayList<>();
+        for (PhotoResponse photoEntity : dataToParse ) {
+            photosUrl.add(photoEntity.getUrl());
+            photosTitle.add(photoEntity.getTitle());
+        }
     }
 }

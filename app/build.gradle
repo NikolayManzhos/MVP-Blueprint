@@ -30,7 +30,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile "com.android.support:appcompat-v7:$rootProject.appCompatVersion"
-    compile "junit:junit:$rootProject.junitVersion"ad
+    compile "junit:junit:$rootProject.junitVersion"
     compile "com.google.dagger:dagger:$rootProject.daggerVersion"
     compile "com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion"
     compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"

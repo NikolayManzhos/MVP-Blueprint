@@ -18,6 +18,7 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
     private MainViewInteractor mainViewInteractor;
 
     private boolean taskRunning = false;
+    private boolean errorVisible = false;
 
     @Inject
     public MainViewPresenterImpl(MainViewInteractor mainViewInteractor) {
@@ -48,27 +49,64 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
 
     public void requestUpdate() {
         taskRunning = true;
+        errorVisible = false;
         view.showLoading();
+        view.hidePhotosList();
+        view.hideError();
         mainViewInteractor.loadDataFromNetwork();
     }
 
+    public void requestCachedData() {
+        taskRunning = true;
+        errorVisible = false;
+        view.showLoading();
+        mainViewInteractor.loadDataFromCache();
+    }
+
     @Override
-    public void onSuccess(List<PhotoResponse> data) {
-        if (view!= null) {
+    public void onSuccess(List<String> photosUrl, List<String> photosTitle) {
+        if (view != null) {
             view.hideLoading();
             view.hideError();
-            view.updateView(data.get(0).getThumbnailUrl());
+            view.showPhotosList();
+            view.updateView(photosUrl, photosTitle);
         }
         taskRunning = false;
     }
 
     @Override
     public void onFailure() {
-        if (view!= null) {
+        if (view != null) {
             view.hideLoading();
             view.showError();
+            view.hidePhotosList();
         }
+        errorVisible = true;
         taskRunning = false;
+    }
+
+    public void restoreViewState() {
+        if (view != null) {
+            if (taskRunning) {
+                view.showLoading();
+                view.hidePhotosList();
+                view.hideError();
+            } else if(errorVisible) {
+                view.showError();
+                view.hidePhotosList();
+                view.hideLoading();
+            } else {
+                requestCachedData();
+            }
+        }
+    }
+
+    public boolean isTaskRunning() {
+        return taskRunning;
+    }
+
+    public boolean isErrorVisible() {
+        return errorVisible;
     }
 
 }

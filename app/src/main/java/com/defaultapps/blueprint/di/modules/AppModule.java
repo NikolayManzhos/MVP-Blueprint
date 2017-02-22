@@ -1,6 +1,7 @@
 package com.defaultapps.blueprint.di.modules;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.defaultapps.blueprint.data.interactor.MainViewInteractor;
 import com.defaultapps.blueprint.data.local.LocalService;
@@ -43,4 +44,7 @@ public class AppModule {
 
     @Provides
     LocalService getLocalService() { return new LocalService(application); }
+
+    @Provides
+    Context provideContext() { return application.getApplicationContext(); }
 }
