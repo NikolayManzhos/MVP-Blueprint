@@ -3,17 +3,27 @@ package com.defaultapps.blueprint.ui.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.defaultapps.blueprint.App;
 import com.defaultapps.blueprint.R;
-import com.defaultapps.blueprint.ui.base.MvpView;
+import com.defaultapps.blueprint.ui.adapter.PhotosAdapter;
 import com.defaultapps.blueprint.ui.presenter.MainViewPresenterImpl;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -23,10 +33,13 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 
-public class MainViewImpl extends Fragment implements MvpView {
+public class MainViewImpl extends Fragment implements MainView, MenuItem.OnMenuItemClickListener {
 
     @Inject
     MainViewPresenterImpl mainViewPresenter;
+
+    @Inject
+    PhotosAdapter photosAdapter;
 
     private Unbinder unbinder;
 
@@ -36,8 +49,8 @@ public class MainViewImpl extends Fragment implements MvpView {
     @BindView(R.id.errorButton)
     Button errorButton;
 
-    @BindView(R.id.button)
-    Button button;
+    @BindView(R.id.photosRecyclerView)
+    RecyclerView photosRecycler;
 
     @BindView(R.id.progressBar)
     ProgressBar progressBar;
@@ -52,25 +65,46 @@ public class MainViewImpl extends Fragment implements MvpView {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         unbinder = ButterKnife.bind(this, view);
         mainViewPresenter.setView(this);
+        initRecyclerView();
+        if (savedInstanceState != null) {
+            mainViewPresenter.restoreViewState();
+        } else {
+            mainViewPresenter.requestUpdate();
+        }
+
+
         super.onViewCreated(view, savedInstanceState);
     }
 
-    @OnClick(R.id.button)
-    void onClick() {
-        mainViewPresenter.requestUpdate();
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main_view, menu);
+        MenuItem refreshItem = menu.findItem(R.id.updateData);
+        refreshItem.setOnMenuItemClickListener(this);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.updateData:
+                mainViewPresenter.requestUpdate();
+        }
+        return false;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        photosRecycler.setAdapter(null);
         unbinder.unbind();
         mainViewPresenter.detachView();
     }
@@ -96,4 +130,25 @@ public class MainViewImpl extends Fragment implements MvpView {
     public void hideLoading() {
         progressBar.setVisibility(View.GONE);
     }
+
+    @Override
+    public void updateView(List<String> photosUrl, List<String> photosTitle ) {
+        photosAdapter.setPhotosData(photosUrl, photosTitle);
+    }
+
+    @Override
+    public void hidePhotosList() {
+        photosRecycler.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showPhotosList() {
+        photosRecycler.setVisibility(View.VISIBLE);
+    }
+
+    private void initRecyclerView() {
+        photosRecycler.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+        photosRecycler.setAdapter(photosAdapter);
+    }
+
 }

@@ -1,8 +1,11 @@
 package com.defaultapps.blueprint.di.modules;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.defaultapps.blueprint.data.interactor.MainViewInteractor;
+import com.defaultapps.blueprint.data.local.LocalService;
+import com.defaultapps.blueprint.data.net.NetworkService;
 import com.defaultapps.blueprint.ui.presenter.MainViewPresenterImpl;
 
 import javax.inject.Singleton;
@@ -27,12 +30,21 @@ public class AppModule {
 
     @Provides
     @Singleton
-    MainViewPresenterImpl getPresenter(MainViewInteractor mainViewInteractor){
+    MainViewPresenterImpl getMainViewPresenter(MainViewInteractor mainViewInteractor){
         return new MainViewPresenterImpl(mainViewInteractor);
     }
 
     @Provides
-    MainViewInteractor getMainViewInteractor() {
-        return new MainViewInteractor();
+    MainViewInteractor getMainViewInteractor(NetworkService networkService, LocalService localService) {
+        return new MainViewInteractor(networkService, localService);
     }
+
+    @Provides
+    NetworkService getNetworkService() { return new NetworkService(); }
+
+    @Provides
+    LocalService getLocalService() { return new LocalService(application); }
+
+    @Provides
+    Context provideContext() { return application.getApplicationContext(); }
 }

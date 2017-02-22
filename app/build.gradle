@@ -33,9 +33,13 @@ dependencies {
     compile "junit:junit:$rootProject.junitVersion"
     compile "com.google.dagger:dagger:$rootProject.daggerVersion"
     compile "com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion"
+    compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
     compile "com.jakewharton:butterknife:$rootProject.butterknifeVersion"
     compile "frankiesardo:icepick:$rootProject.icepickVersion"
     provided "frankiesardo:icepick-processor:$rootProject.icepickVersion"
+    compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
+    compile "com.android.support:support-v4:$rootProject.supportVersion"
+    compile "com.android.support:recyclerview-v7:$rootProject.recyclerviewVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterknifeVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
 
@@ -43,4 +47,5 @@ dependencies {
     debugCompile "com.squareup.leakcanary:leakcanary-android:$rootProject.leakcanaryVersion"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$rootProject.leakcanaryVersion"
     testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$rootProject.leakcanaryVersion"
+
 }

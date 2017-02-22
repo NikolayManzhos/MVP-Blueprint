@@ -1,11 +1,13 @@
 package com.defaultapps.blueprint.ui.presenter;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
+import com.defaultapps.blueprint.data.entity.PhotoResponse;
 import com.defaultapps.blueprint.data.interactor.MainViewInteractor;
 import com.defaultapps.blueprint.ui.base.MvpPresenter;
 import com.defaultapps.blueprint.ui.fragment.MainViewImpl;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -16,6 +18,7 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
     private MainViewInteractor mainViewInteractor;
 
     private boolean taskRunning = false;
+    private boolean errorVisible = false;
 
     @Inject
     public MainViewPresenterImpl(MainViewInteractor mainViewInteractor) {
@@ -41,32 +44,69 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
 
     @Override
     public void destroy() {
-        //TODO: Stop loading of any data at this point
+        //TODO: Stop loading of any data at this point ?
     }
 
     public void requestUpdate() {
         taskRunning = true;
+        errorVisible = false;
         view.showLoading();
-        mainViewInteractor.loadData();
+        view.hidePhotosList();
+        view.hideError();
+        mainViewInteractor.loadDataFromNetwork();
+    }
+
+    public void requestCachedData() {
+        taskRunning = true;
+        errorVisible = false;
+        view.showLoading();
+        mainViewInteractor.loadDataFromCache();
     }
 
     @Override
-    public void onSuccess() {
-        if (view!= null) {
+    public void onSuccess(List<String> photosUrl, List<String> photosTitle) {
+        if (view != null) {
             view.hideLoading();
             view.hideError();
+            view.showPhotosList();
+            view.updateView(photosUrl, photosTitle);
         }
         taskRunning = false;
     }
 
     @Override
     public void onFailure() {
-        if (view!= null) {
+        if (view != null) {
             view.hideLoading();
             view.showError();
+            view.hidePhotosList();
         }
+        errorVisible = true;
         taskRunning = false;
     }
 
+    public void restoreViewState() {
+        if (view != null) {
+            if (taskRunning) {
+                view.showLoading();
+                view.hidePhotosList();
+                view.hideError();
+            } else if(errorVisible) {
+                view.showError();
+                view.hidePhotosList();
+                view.hideLoading();
+            } else {
+                requestCachedData();
+            }
+        }
+    }
+
+    public boolean isTaskRunning() {
+        return taskRunning;
+    }
+
+    public boolean isErrorVisible() {
+        return errorVisible;
+    }
 
 }

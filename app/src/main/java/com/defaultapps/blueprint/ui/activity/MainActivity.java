@@ -20,11 +20,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        App.getAppComponent(this).inject(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.contentFrame, new MainViewImpl())
+                    .add(R.id.contentFrame, new MainViewImpl())
                     .commit();
         }
     }
