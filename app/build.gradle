@@ -48,4 +48,18 @@ dependencies {
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$rootProject.leakcanaryVersion"
     testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$rootProject.leakcanaryVersion"
 
+    //UnitTest
+    testCompile "junit:junit:$rootProject.junitVersion"
+    testCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
+    testCompile "org.powermock:powermock-module-junit4:$rootProject.powerMockitoVersion"
+    testCompile "org.powermock:powermock-api-mockito2:$rootProject.powerMockitoVersion"
+
+
+    //InstrumentalTest
+    androidTestCompile "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
+    androidTestCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
+
+
+
+
 }

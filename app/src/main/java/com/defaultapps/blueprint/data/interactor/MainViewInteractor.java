@@ -77,12 +77,12 @@ public class MainViewInteractor {
                     super.onPostExecute(aVoid);
                     if (callback != null) {
                         if (responseStatus) {
-                            Log.d("AsyncTask", "SUCCESS");
+                            Log.d("AsyncTaskNet", "SUCCESS");
                             callback.onSuccess(photosUrl, photosTitle);
                             photosUrl = null;
                             photosTitle = null;
                         } else {
-                            Log.d("AsyncTask", "FAILURE");
+                            Log.d("AsyncTaskNet", "FAILURE");
                             callback.onFailure();
                         }
                     }
@@ -108,7 +108,7 @@ public class MainViewInteractor {
                     responseStatus = true;
                 } catch (IOException ex) {
                     ex.printStackTrace();
-                    Log.d("AsyncTask", "FAILED TO READ DATA");
+                    Log.d("AsyncTaskLocal", "FAILED TO READ DATA");
                     responseStatus = false;
                 }
                 return null;
@@ -119,12 +119,12 @@ public class MainViewInteractor {
                 super.onPostExecute(aVoid);
                 if (callback != null) {
                     if (responseStatus) {
-                        Log.d("AsyncTask", "SUCCESS");
+                        Log.d("AsyncTaskLocal", "SUCCESS");
                         callback.onSuccess(photosUrl, photosTitle);
                         photosUrl = null;
                         photosTitle = null;
                     } else {
-                        Log.d("AsyncTask", "FAILURE");
+                        Log.d("AsyncTaskLocal", "FAILURE");
                         callback.onFailure();
                     }
                 }

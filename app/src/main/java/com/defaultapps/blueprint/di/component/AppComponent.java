@@ -1,7 +1,6 @@
 package com.defaultapps.blueprint.di.component;
 
 import com.defaultapps.blueprint.di.modules.AppModule;
-import com.defaultapps.blueprint.ui.activity.MainActivity;
 import com.defaultapps.blueprint.ui.fragment.MainViewImpl;
 
 import javax.inject.Singleton;

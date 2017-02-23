@@ -8,11 +8,13 @@ import com.defaultapps.blueprint.di.component.AppComponent;
 import com.defaultapps.blueprint.di.component.DaggerAppComponent;
 import com.defaultapps.blueprint.di.modules.AppModule;
 import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
 
 public class App extends Application {
 
     private AppComponent component;
+    private RefWatcher refWatcher;
 
     @Override
     public void onCreate() {
@@ -35,12 +37,15 @@ public class App extends Application {
         return app.component;
     }
 
+    public static RefWatcher getRefWatcher(Context context) {
+        App application = (App) context.getApplicationContext();
+        return application.refWatcher;
+    }
+
     private void initializeLeakDetection() {
         if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
             return;
         }
-        LeakCanary.install(this);
+        refWatcher = LeakCanary.install(this);
     }
 }

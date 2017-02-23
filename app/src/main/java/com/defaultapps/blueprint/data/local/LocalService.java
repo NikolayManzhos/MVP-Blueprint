@@ -45,7 +45,6 @@ public class LocalService {
     /**
      * Read response from file.
      * Do not execute on the UI thread!
-     * @return
      */
     public List<PhotoResponse> readResponseFromFile() throws IOException {
         Type listOfPhotoResponseType = new TypeToken<ArrayList<PhotoResponse>>(){}.getType();
