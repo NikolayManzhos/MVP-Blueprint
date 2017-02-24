@@ -75,7 +75,7 @@ public class MainViewImpl extends Fragment implements MainView, MenuItem.OnMenuI
         if (savedInstanceState != null) {
             mainViewPresenter.restoreViewState();
         } else {
-            mainViewPresenter.requestUpdate();
+            mainViewPresenter.requestCachedData();
         }
 
 

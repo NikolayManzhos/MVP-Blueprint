@@ -24,27 +24,8 @@ public class AppModule {
 
     @Provides
     @Singleton
-    Application providesApplication() {
-        return  application;
+    Context providesApplication() {
+        return  application.getApplicationContext();
     }
 
-    @Provides
-    @Singleton
-    MainViewPresenterImpl getMainViewPresenter(MainViewInteractor mainViewInteractor){
-        return new MainViewPresenterImpl(mainViewInteractor);
-    }
-
-    @Provides
-    MainViewInteractor getMainViewInteractor(NetworkService networkService, LocalService localService) {
-        return new MainViewInteractor(networkService, localService);
-    }
-
-    @Provides
-    NetworkService getNetworkService() { return new NetworkService(); }
-
-    @Provides
-    LocalService getLocalService() { return new LocalService(application); }
-
-    @Provides
-    Context provideContext() { return application.getApplicationContext(); }
 }

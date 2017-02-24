@@ -10,8 +10,9 @@ import com.defaultapps.blueprint.ui.fragment.MainViewImpl;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-
+@Singleton
 public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainViewInteractor.MainViewInteractorCallback {
 
     private MainViewImpl view;
