@@ -2,6 +2,8 @@ package com.defaultapps.blueprint;
 
 import android.app.Application;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.VisibleForTesting;
 
 import com.defaultapps.blueprint.di.component.AppComponent;
@@ -40,6 +42,13 @@ public class App extends Application {
     public static RefWatcher getRefWatcher(Context context) {
         App application = (App) context.getApplicationContext();
         return application.refWatcher;
+    }
+
+    public boolean checkIfHasNetwork()
+    {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     private void initializeLeakDetection() {

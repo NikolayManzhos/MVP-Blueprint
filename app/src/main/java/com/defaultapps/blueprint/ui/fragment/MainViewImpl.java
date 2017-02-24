@@ -1,5 +1,9 @@
 package com.defaultapps.blueprint.ui.fragment;
 
+import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -32,6 +36,9 @@ import butterknife.Unbinder;
 
 
 public class MainViewImpl extends Fragment implements MainView, MenuItem.OnMenuItemClickListener {
+
+    @Inject
+    Application application;
 
     @Inject
     MainViewPresenterImpl mainViewPresenter;
@@ -75,7 +82,11 @@ public class MainViewImpl extends Fragment implements MainView, MenuItem.OnMenuI
         if (savedInstanceState != null) {
             mainViewPresenter.restoreViewState();
         } else {
-            mainViewPresenter.requestCachedData();
+            if (((App) application).checkIfHasNetwork()) {
+                mainViewPresenter.requestUpdate();
+            } else {
+                mainViewPresenter.requestCachedData();
+            }
         }
 
 
