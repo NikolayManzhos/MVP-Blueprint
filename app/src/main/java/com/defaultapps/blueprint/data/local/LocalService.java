@@ -2,16 +2,17 @@ package com.defaultapps.blueprint.data.local;
 
 
 import android.content.Context;
+import android.provider.MediaStore;
 
 import com.defaultapps.blueprint.data.entity.PhotoResponse;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -48,14 +49,25 @@ public class LocalService {
      */
     public List<PhotoResponse> readResponseFromFile() throws IOException {
         Type listOfPhotoResponseType = new TypeToken<ArrayList<PhotoResponse>>(){}.getType();
-        int length = (int) file.length();
-        byte[] bytes = new byte[length];
-            BufferedInputStream bs = new BufferedInputStream(new FileInputStream(file));
-            bs.read(bytes, 0, bytes.length);
-            bs.close();
+        String line = "";
+        StringBuilder jsonString = new StringBuilder();
 
-        String jsonString = new String(bytes);
-        return gson.fromJson(jsonString, listOfPhotoResponseType);
+        FileReader fileReader = new FileReader(file);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        while ((line = bufferedReader.readLine()) != null) {
+            jsonString.append(line);
+        }
+        return gson.fromJson(jsonString.toString(), listOfPhotoResponseType);
+    }
+
+    public void deleteCache() {
+        if (isCacheAvailable()) {
+            file.delete();
+        }
+    }
+
+    public boolean isCacheAvailable() {
+        return file.exists();
     }
 
 }

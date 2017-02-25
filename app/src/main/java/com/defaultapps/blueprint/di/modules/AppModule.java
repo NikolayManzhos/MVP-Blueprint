@@ -2,6 +2,7 @@ package com.defaultapps.blueprint.di.modules;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.defaultapps.blueprint.data.interactor.MainViewInteractor;
 import com.defaultapps.blueprint.data.local.LocalService;
