@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.defaultapps.blueprint.data.entity.PhotoResponse;
 import com.defaultapps.blueprint.data.local.LocalService;
+import com.defaultapps.blueprint.data.local.sp.SharedPreferencesManager;
 import com.defaultapps.blueprint.data.net.NetworkService;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class MainViewInteractor {
     private AsyncTask<Void, Void, Void> loadFromCacheTask;
     private NetworkService networkService;
     private LocalService localService;
+    private SharedPreferencesManager sharedPreferencesManager;
     private MainViewInteractorCallback callback;
     private boolean responseStatus;
 
@@ -29,6 +31,7 @@ public class MainViewInteractor {
     private List<String> photosUrl;
     private List<String> photosTitle;
 
+    private final long CACHE_EXP_TIME = 86400000;
 
     public interface MainViewInteractorCallback {
         void onSuccess(List<String> photosUrl, List<String> photosTitle);
@@ -37,9 +40,10 @@ public class MainViewInteractor {
 
 
     @Inject
-    public MainViewInteractor(NetworkService networkService, LocalService localService) {
+    public MainViewInteractor(NetworkService networkService, LocalService localService, SharedPreferencesManager sharedPreferencesManager) {
         this.networkService = networkService;
         this.localService = localService;
+        this.sharedPreferencesManager = sharedPreferencesManager;
     }
 
     public void bindInteractor(MainViewInteractorCallback callback) {
@@ -48,90 +52,94 @@ public class MainViewInteractor {
 
 
     public void loadDataFromNetwork() {
-            downloadFromNetTask = new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected void onPreExecute() {
-                    super.onPreExecute();
-                }
-
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        Response<List<PhotoResponse>> response = networkService.getNetworkCall().getData().execute();
-                        data = response.body();
-                        localService.writeResponseToFile(data);
-                        if (data != null) {
-                            parseData(data);
-                        }
-                        responseStatus = true;
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                        Log.d("AsyncTask", "FAILED TO LOAD OR WRITE DATA");
-                        responseStatus = false;
-                    }
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
-                    if (callback != null) {
-                        if (responseStatus) {
-                            Log.d("AsyncTask", "SUCCESS");
-                            callback.onSuccess(photosUrl, photosTitle);
-                            photosUrl = null;
-                            photosTitle = null;
-                        } else {
-                            Log.d("AsyncTask", "FAILURE");
-                            callback.onFailure();
-                        }
-                    }
-                }
-            };
-        if (!downloadFromNetTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            downloadFromNetTask.execute();
-        }
-    }
-
-    public void loadDataFromCache() {
-        loadFromCacheTask = new AsyncTask<Void, Void, Void>() {
+        downloadFromNetTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-                super.onPreExecute();
-            }
+                    super.onPreExecute();
+                }
 
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    data = localService.readResponseFromFile();
-                    parseData(data);
+                    Response<List<PhotoResponse>> response = networkService.getNetworkCall().getData().execute();
+                    data = response.body();
+                    localService.writeResponseToFile(data);
+                    sharedPreferencesManager.setCacheTime(System.currentTimeMillis());
+                    if (data != null) {
+                        parseData(data);
+                    }
                     responseStatus = true;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    Log.d("AsyncTask", "FAILED TO READ DATA");
-                    responseStatus = false;
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        Log.d("AsyncTaskNet", "FAILED TO LOAD OR WRITE DATA");
+                        responseStatus = false;
+                    }
+                    return null;
                 }
-                return null;
-            }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 if (callback != null) {
                     if (responseStatus) {
-                        Log.d("AsyncTask", "SUCCESS");
+                        Log.d("AsyncTaskNet", "SUCCESS");
                         callback.onSuccess(photosUrl, photosTitle);
                         photosUrl = null;
                         photosTitle = null;
                     } else {
-                        Log.d("AsyncTask", "FAILURE");
+                        Log.d("AsyncTaskNet", "FAILURE");
                         callback.onFailure();
                     }
                 }
             }
         };
-        if (!loadFromCacheTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+        downloadFromNetTask.execute();
+    }
+
+    public void loadDataFromCache() {
+        if (localService.isCacheAvailable()
+                && sharedPreferencesManager.getCacheTime() != 0
+                && (System.currentTimeMillis() - sharedPreferencesManager.getCacheTime()) < CACHE_EXP_TIME ) {
+            loadFromCacheTask = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected void onPreExecute() {
+                        super.onPreExecute();
+                    }
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        data = localService.readResponseFromFile();
+                        parseData(data);
+                        responseStatus = true;
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        Log.d("AsyncTaskLocal", "FAILED TO READ DATA");
+                        responseStatus = false;
+                    }
+                        return null;
+                    }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    if (callback != null) {
+                        if (responseStatus) {
+                            Log.d("AsyncTaskLocal", "SUCCESS");
+                            callback.onSuccess(photosUrl, photosTitle);
+                            photosUrl = null;
+                            photosTitle = null;
+                        } else {
+                            Log.d("AsyncTaskLocal", "FAILURE");
+                            callback.onFailure();
+                        }
+                    }
+                }
+            };
             loadFromCacheTask.execute();
+
+        } else {
+            loadDataFromNetwork();
         }
     }
 

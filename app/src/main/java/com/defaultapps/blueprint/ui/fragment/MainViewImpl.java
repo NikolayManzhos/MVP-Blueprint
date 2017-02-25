@@ -1,9 +1,12 @@
 package com.defaultapps.blueprint.ui.fragment;
 
+import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,15 +16,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.defaultapps.blueprint.App;
 import com.defaultapps.blueprint.R;
 import com.defaultapps.blueprint.ui.adapter.PhotosAdapter;
 import com.defaultapps.blueprint.ui.presenter.MainViewPresenterImpl;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.List;
 
@@ -34,6 +36,9 @@ import butterknife.Unbinder;
 
 
 public class MainViewImpl extends Fragment implements MainView, MenuItem.OnMenuItemClickListener {
+
+    @Inject
+    Application application;
 
     @Inject
     MainViewPresenterImpl mainViewPresenter;
@@ -77,7 +82,11 @@ public class MainViewImpl extends Fragment implements MainView, MenuItem.OnMenuI
         if (savedInstanceState != null) {
             mainViewPresenter.restoreViewState();
         } else {
-            mainViewPresenter.requestUpdate();
+            if (((App) application).checkIfHasNetwork()) {
+                mainViewPresenter.requestUpdate();
+            } else {
+                mainViewPresenter.requestCachedData();
+            }
         }
 
 
@@ -101,12 +110,19 @@ public class MainViewImpl extends Fragment implements MainView, MenuItem.OnMenuI
         return false;
     }
 
+    @OnClick(R.id.errorButton)
+    void onClick() {
+        mainViewPresenter.requestUpdate();
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         photosRecycler.setAdapter(null);
         unbinder.unbind();
         mainViewPresenter.detachView();
+        RefWatcher refWatcher = App.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 
     @Override

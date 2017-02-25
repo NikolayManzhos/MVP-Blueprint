@@ -3,9 +3,7 @@ package com.defaultapps.blueprint.ui.activity;
 import android.app.Application;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 
-import com.defaultapps.blueprint.App;
 import com.defaultapps.blueprint.R;
 import com.defaultapps.blueprint.ui.fragment.MainViewImpl;
 

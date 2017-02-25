@@ -2,6 +2,7 @@ package com.defaultapps.blueprint.di.modules;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.defaultapps.blueprint.data.interactor.MainViewInteractor;
 import com.defaultapps.blueprint.data.local.LocalService;
@@ -24,27 +25,12 @@ public class AppModule {
 
     @Provides
     @Singleton
-    Application providesApplication() {
-        return  application;
+    Context providesApplicationContext() {
+        return  application.getApplicationContext();
     }
 
     @Provides
     @Singleton
-    MainViewPresenterImpl getMainViewPresenter(MainViewInteractor mainViewInteractor){
-        return new MainViewPresenterImpl(mainViewInteractor);
-    }
+    Application providesApplication() { return application; }
 
-    @Provides
-    MainViewInteractor getMainViewInteractor(NetworkService networkService, LocalService localService) {
-        return new MainViewInteractor(networkService, localService);
-    }
-
-    @Provides
-    NetworkService getNetworkService() { return new NetworkService(); }
-
-    @Provides
-    LocalService getLocalService() { return new LocalService(application); }
-
-    @Provides
-    Context provideContext() { return application.getApplicationContext(); }
 }

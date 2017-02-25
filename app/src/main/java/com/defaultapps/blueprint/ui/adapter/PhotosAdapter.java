@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -51,7 +52,7 @@ public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.PhotosView
 
     @Override
     public PhotosAdapter.PhotosViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_photo, parent, false);
+        LinearLayout view = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.item_photo, parent, false);
         return new PhotosViewHolder(view);
     }
 

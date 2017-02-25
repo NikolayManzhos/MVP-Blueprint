@@ -1,8 +1,8 @@
 package com.defaultapps.blueprint.ui.presenter;
 
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
-import com.defaultapps.blueprint.data.entity.PhotoResponse;
 import com.defaultapps.blueprint.data.interactor.MainViewInteractor;
 import com.defaultapps.blueprint.ui.base.MvpPresenter;
 import com.defaultapps.blueprint.ui.fragment.MainViewImpl;
@@ -10,8 +10,9 @@ import com.defaultapps.blueprint.ui.fragment.MainViewImpl;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-
+@Singleton
 public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainViewInteractor.MainViewInteractorCallback {
 
     private MainViewImpl view;
@@ -30,10 +31,6 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
     public void setView(MainViewImpl view) {
         this.view = view;
         mainViewInteractor.bindInteractor(this);
-        if (taskRunning && view != null) {
-            view.showLoading();
-            Log.d("PRESENTER", "LOADING ON SETVIEW");
-        }
     }
 
     @Override
@@ -48,8 +45,8 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
     }
 
     public void requestUpdate() {
-        taskRunning = true;
-        errorVisible = false;
+        setTaskStatus(true);
+        setErrorVisibilityStatus(false);
         view.showLoading();
         view.hidePhotosList();
         view.hideError();
@@ -57,8 +54,8 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
     }
 
     public void requestCachedData() {
-        taskRunning = true;
-        errorVisible = false;
+        setTaskStatus(true);
+        setErrorVisibilityStatus(false);
         view.showLoading();
         mainViewInteractor.loadDataFromCache();
     }
@@ -71,18 +68,18 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
             view.showPhotosList();
             view.updateView(photosUrl, photosTitle);
         }
-        taskRunning = false;
+        setTaskStatus(false);
     }
 
     @Override
     public void onFailure() {
         if (view != null) {
             view.hideLoading();
-            view.showError();
             view.hidePhotosList();
+            view.showError();
         }
-        errorVisible = true;
-        taskRunning = false;
+        setErrorVisibilityStatus(true);
+        setTaskStatus(false);
     }
 
     public void restoreViewState() {
@@ -99,6 +96,16 @@ public class MainViewPresenterImpl implements MvpPresenter<MainViewImpl>, MainVi
                 requestCachedData();
             }
         }
+    }
+
+    @VisibleForTesting
+    void setTaskStatus(boolean status) {
+        this.taskRunning = status;
+    }
+
+    @VisibleForTesting
+    void setErrorVisibilityStatus(boolean status) {
+        this.errorVisible = status;
     }
 
     public boolean isTaskRunning() {
